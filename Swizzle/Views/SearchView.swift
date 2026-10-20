@@ -71,7 +71,7 @@ struct SearchView: View {
     private func matches(_ q: String) -> [Recipe] {
         let lower = q.lowercased()
         let keys = Set(store.catalog.guesses(for: q).map(\.key))
-        return store.catalog.recipes.filter { r in
+        return store.allRecipes.filter { r in
             r.name.lowercased().contains(lower)
                 || r.ing.contains { i in i.item.lowercased().contains(lower) || (i.bottle.map { keys.contains($0) } ?? false) }
         }

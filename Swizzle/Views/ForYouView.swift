@@ -9,6 +9,10 @@ struct ForYouView: View {
             VStack(alignment: .leading, spacing: 0) {
                 ScreenHeader(eyebrow: "Made for your bar", title: "For you")
                 AskTheBartenderCard()
+                if !store.invented.isEmpty {
+                    SubHeader(title: "Invented for you", trailing: "\(store.invented.count)")
+                    RecipeGrid(recipes: store.invented)
+                }
                 SubHeader(title: "Saved", trailing: "\(saved.count)")
                 if saved.isEmpty {
                     EmptyNote(message: "Tap the bookmark on any drink to keep it here.")
@@ -25,14 +29,32 @@ struct ForYouView: View {
     }
 }
 
-/// "Ask the bartender" invents drinks from the person's bottles. The prototype did this with Claude;
-/// the native version isn't wired up yet, so the card says so. Its drifting color is the one place
-/// Swizzle allows color, by Garrett's rule for bartender drinks.
+/// "Ask the bartender" invents three drinks from the person's bottles (see `Bartender`). Its drifting
+/// color is the one place Swizzle allows color, by Garrett's rule for bartender drinks.
 private struct AskTheBartenderCard: View {
+    @Environment(AppStore.self) private var store
     @State private var drift = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
+        let unavailable = Bartender.unavailableReason
+        let subtitle = store.inventing ? "Inventing three drinks from what’s on your shelf"
+            : unavailable ?? (store.bar.isEmpty ? "Add bottles to your library first"
+                              : "Three new drinks invented from your \(store.haveKeys.count) bottles")
+        Button {
+            Task { await store.askTheBartender() }
+        } label: {
+            card(subtitle: subtitle)
+        }
+        .buttonStyle(.plain)
+        .disabled(store.inventing || unavailable != nil)
+        .onAppear {
+            guard !reduceMotion else { return }
+            withAnimation(.easeInOut(duration: 14).repeatForever(autoreverses: true)) { drift = true }
+        }
+    }
+
+    private func card(subtitle: String) -> some View {
         ZStack(alignment: .bottom) {
             ZStack {
                 LinearGradient(colors: [Color(hex: 0xF4ECE4), Color(hex: 0xECE9EF), Color(hex: 0xE7EEE9)],
@@ -46,14 +68,20 @@ private struct AskTheBartenderCard: View {
             .clipped()
 
             HStack(spacing: 12) {
-                Image(systemName: "sparkle")
+                if store.inventing {
+                    ProgressView().tint(Color.ink)
+                } else {
+                    Image(systemName: "sparkle")
+                }
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Ask the bartender").font(SwizzleFont.ui(15, weight: .medium))
-                    Text("New drinks invented from your bottles. Coming soon.")
+                    Text(store.inventing ? "Shaking up ideas…" : "Ask the bartender")
+                        .font(SwizzleFont.ui(15, weight: .medium))
+                    Text(subtitle)
                         .font(SwizzleFont.ui(12))
                         .foregroundStyle(Color.ink2)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+                Image(systemName: "arrow.right")
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 12)
@@ -62,11 +90,8 @@ private struct AskTheBartenderCard: View {
         }
         .aspectRatio(370 / 170, contentMode: .fit)
         .clipShape(.rect(cornerRadius: 20))
+        .contentShape(.rect(cornerRadius: 20))
         .accessibilityElement(children: .combine)
-        .onAppear {
-            guard !reduceMotion else { return }
-            withAnimation(.easeInOut(duration: 14).repeatForever(autoreverses: true)) { drift = true }
-        }
     }
 
     private func blob(_ hex: UInt32, x: CGFloat, y: CGFloat) -> some View {

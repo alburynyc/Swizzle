@@ -77,6 +77,14 @@ struct RecipeDetailView: View {
                 if let source = recipe.source {
                     SourceLine(source: source, isVariation: showVariation && recipe.alt != nil)
                         .padding(.top, 24)
+                } else if recipe.isInvented {
+                    Text("INVENTED FOR YOUR BAR")
+                        .font(SwizzleFont.ui(11))
+                        .tracking(0.44)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .overlay(Capsule().strokeBorder(Color.ink))
+                        .padding(.top, 20)
                 }
             }
             .gutter()

@@ -19,7 +19,10 @@ struct RecipeArt: View {
     var lineWidth: CGFloat = 1.6
 
     var body: some View {
-        if let photo = RecipePhoto.name(for: recipe.id) {
+        if recipe.isInvented {
+            InventedArt(colors: recipe.colors ?? [], glass: recipe.glass, iconScale: iconScale, lineWidth: lineWidth)
+                .accessibilityHidden(true)
+        } else if let photo = RecipePhoto.name(for: recipe.id) {
             Color.field
                 .overlay {
                     Image(photo)
@@ -44,6 +47,35 @@ struct RecipeArt: View {
                 }
             }
             .accessibilityHidden(true)
+        }
+    }
+}
+
+/// A bartender drink's artwork: a gradient poured from its own ingredients, under a white glass icon.
+/// The one place Swizzle uses color, by Garrett's rule.
+private struct InventedArt: View {
+    let colors: [String]
+    let glass: String
+    let iconScale: CGFloat
+    let lineWidth: CGFloat
+
+    var body: some View {
+        var palette = colors.compactMap { UInt32($0.dropFirst(), radix: 16) }.map { Color(hex: $0) }
+        if palette.count < 2 { palette += [Color(hex: 0xF2E6C9), Color(hex: 0xD9C1E8)] }
+        let first = palette[0], last = palette[palette.count - 1]
+        return GeometryReader { geo in
+            let side = min(geo.size.width * iconScale, geo.size.height * 0.7)
+            let reach = max(geo.size.width, geo.size.height)
+            ZStack {
+                LinearGradient(colors: palette, startPoint: .topLeading, endPoint: .bottomTrailing)
+                RadialGradient(colors: [first, first.opacity(0)], center: UnitPoint(x: 0.18, y: 0.18), startRadius: 0, endRadius: reach * 0.6)
+                RadialGradient(colors: [last, last.opacity(0)], center: UnitPoint(x: 0.9, y: 0.9), startRadius: 0, endRadius: reach * 0.6)
+                RadialGradient(colors: [.white.opacity(0.35), .white.opacity(0)], center: UnitPoint(x: 0.3, y: 0), startRadius: 0, endRadius: reach * 0.7)
+                GlassIcon(catalogGlass: glass)
+                    .stroke(Color.white.opacity(0.95), style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
+                    .frame(width: side, height: side)
+                    .shadow(color: .black.opacity(0.18), radius: 1, y: 1)
+            }
         }
     }
 }

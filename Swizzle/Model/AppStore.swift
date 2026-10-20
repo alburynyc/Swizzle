@@ -43,6 +43,8 @@ final class AppStore {
     var name = ""
     private(set) var bar: [BarBottle] = []
     private(set) var saved: [String] = []
+    /// Drinks Ask the bartender invented, newest first.
+    private(set) var invented: [Recipe] = []
     var plan: Plan = .yearly
     private(set) var premium = false
     private(set) var filter: HomeFilter = .all
@@ -74,6 +76,7 @@ final class AppStore {
         var plan: Plan
         var premium: Bool
         var filter: HomeFilter
+        var invented: [Recipe]?
     }
 
     init() {
@@ -86,12 +89,13 @@ final class AppStore {
             plan = s.plan
             premium = s.premium
             filter = s.filter
+            invented = s.invented ?? []
         }
         shelfPhoto = UIImage(contentsOfFile: Self.shelfURL.path)
     }
 
     func persist() {
-        let s = Saved(onboarded: onboarded, name: name, bar: bar, saved: saved, plan: plan, premium: premium, filter: filter)
+        let s = Saved(onboarded: onboarded, name: name, bar: bar, saved: saved, plan: plan, premium: premium, filter: filter, invented: invented)
         if let data = try? JSONEncoder().encode(s) {
             UserDefaults.standard.set(data, forKey: Self.stateKey)
         }
@@ -110,12 +114,19 @@ final class AppStore {
         missing(ing).map { catalog.bottle($0)?.name ?? $0 }.joined(separator: ", ")
     }
 
-    var canMake: [Recipe] { catalog.recipes.filter { missing($0.ing).isEmpty } }
-    var oneAway: [Recipe] { catalog.recipes.filter { missing($0.ing).count == 1 } }
+    /// Invented drinks first, then the catalog.
+    var allRecipes: [Recipe] { invented + catalog.recipes }
+
+    func recipe(_ id: String) -> Recipe? {
+        invented.first { $0.id == id } ?? catalog.recipe(id)
+    }
+
+    var canMake: [Recipe] { allRecipes.filter { missing($0.ing).isEmpty } }
+    var oneAway: [Recipe] { allRecipes.filter { missing($0.ing).count == 1 } }
 
     var filtered: [Recipe] {
         switch filter {
-        case .all: catalog.recipes
+        case .all: allRecipes
         case .can: canMake
         case .away: oneAway
         }
@@ -155,7 +166,7 @@ final class AppStore {
         persist()
     }
 
-    var savedRecipes: [Recipe] { saved.compactMap { catalog.recipe($0) } }
+    var savedRecipes: [Recipe] { saved.compactMap { recipe($0) } }
 
     // MARK: Bar
 
@@ -280,6 +291,31 @@ final class AppStore {
         scannedInOnboarding = []
         viewfinderPhoto = nil
         persist()
+    }
+
+    // MARK: Ask the bartender
+
+    var inventing = false
+
+    func askTheBartender() async {
+        let keys = haveKeys.sorted()
+        guard !keys.isEmpty else {
+            show("Add some bottles to your library first.")
+            return
+        }
+        guard !inventing else { return }
+        inventing = true
+        defer { inventing = false }
+        do {
+            let drinks = try await Bartender.invent(from: keys, catalog: catalog)
+            invented = Array((drinks + invented).prefix(12))
+            persist()
+            show("\(drinks.count) new drinks added")
+        } catch let error as Bartender.Failure {
+            show(error.message)
+        } catch {
+            show("The bartender couldn’t come up with anything. Try again.")
+        }
     }
 
     // MARK: Toast

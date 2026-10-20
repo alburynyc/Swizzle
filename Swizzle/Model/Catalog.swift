@@ -48,6 +48,11 @@ struct Recipe: Codable, Identifiable, Hashable {
     let steps: [Step]
     let source: RecipeSource?
     let alt: Variation?
+    /// Hex colors for a drink the bartender invented; they become its artwork. Nil for catalog recipes.
+    var colors: [String]? = nil
+
+    /// Drinks from Ask the bartender rather than the catalog.
+    var isInvented: Bool { id.hasPrefix("ai-") }
 }
 
 private struct RecipeFile: Decodable {
@@ -163,6 +168,7 @@ extension Recipe {
     }
 
     var styleTag: String {
+        if isInvented { return "New" }
         if cats.contains("brunch") { return "Brunch" }
         if cats.contains("spirit") { return "Classic" }
         return "Fresh"

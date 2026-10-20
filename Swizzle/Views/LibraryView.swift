@@ -11,7 +11,7 @@ struct LibraryView: View {
                 ShelfCard()
 
                 let count = Text("\(store.canMake.count)").foregroundStyle(Color.ink).fontWeight(.medium)
-                Text("Your bar makes \(count) of \(store.catalog.recipes.count) drinks.")
+                Text("Your bar makes \(count) of \(store.allRecipes.count) drinks.")
                     .font(SwizzleFont.ui(14))
                     .foregroundStyle(Color.ink2)
                     .padding(.top, 16)

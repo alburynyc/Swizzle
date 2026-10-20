@@ -84,6 +84,18 @@ struct RecipeCard: View {
             .contentShape(.rect(cornerRadius: 20))
         }
         .buttonStyle(.plain)
+        .overlay(alignment: .topLeading) {
+            if recipe.isInvented {
+                Text("NEW")
+                    .font(SwizzleFont.ui(10))
+                    .tracking(0.4)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .glassEffect(.regular, in: .capsule)
+                    .padding(10)
+                    .allowsHitTesting(false)
+            }
+        }
         .overlay(alignment: .topTrailing) {
             BookmarkButton(recipe: recipe).padding(10)
         }
