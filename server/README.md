@@ -48,7 +48,7 @@ use the app.
 
 ## Cost and limits
 
-- The model is set by `MODEL` in `wrangler.jsonc` (Claude Opus 5.5 to start, at low effort for speed).
+- The model is set by `MODEL` in `wrangler.jsonc` (Claude Sonnet 5.5, at low effort for speed).
   Each ask costs a few cents. To change models, edit that line and run `npm run deploy` again.
 - Each phone can ask at most 6 times a minute (`ratelimits` in `wrangler.jsonc`).
 - In the app, free accounts get 3 asks a day and Premium is unlimited (`AppStore.freeAsksPerDay`).

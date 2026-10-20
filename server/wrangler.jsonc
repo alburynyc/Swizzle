@@ -6,7 +6,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "vars": {
     // The Claude model the bartender uses. Change it here and run `npm run deploy` again.
-    "MODEL": "claude-opus-5-5"
+    "MODEL": "claude-sonnet-5-5"
   },
   // At most 6 asks a minute from one phone, so a stuck button or a script can't run up the bill.
   "ratelimits": [
