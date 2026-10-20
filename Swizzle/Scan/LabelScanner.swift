@@ -28,11 +28,9 @@ enum LabelScanner {
         var found: [DetectedBottle] = []
         var seen = Set<String>()
         for line in lines {
-            let text = " \(Catalog.normalize(line)) "
-            guard let match = catalog.labelTerms.first(where: { text.contains(" \($0.term) ") }),
-                  !seen.contains(match.key) else { continue }
-            seen.insert(match.key)
-            found.append(DetectedBottle(label: displayLabel(line), key: match.key))
+            guard let key = catalog.bottleKey(named: line), !seen.contains(key) else { continue }
+            seen.insert(key)
+            found.append(DetectedBottle(label: displayLabel(line), key: key))
         }
         return found
     }

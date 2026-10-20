@@ -49,6 +49,7 @@ private struct AskTheBartenderCard: View {
         .buttonStyle(.plain)
         .disabled(store.inventing || unavailable != nil)
         .onAppear {
+            store.bartender.prewarm()
             guard !reduceMotion else { return }
             withAnimation(.easeInOut(duration: 14).repeatForever(autoreverses: true)) { drift = true }
         }

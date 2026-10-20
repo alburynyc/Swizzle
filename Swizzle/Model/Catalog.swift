@@ -20,6 +20,12 @@ struct Ingredient: Codable, Hashable {
     let ml: Double?
 }
 
+extension Ingredient {
+    func with(bottle: String?) -> Ingredient {
+        Ingredient(amount: amount, item: item, bottle: bottle, ml: ml)
+    }
+}
+
 struct Step: Codable, Hashable {
     let verb: String
     let text: String
@@ -129,6 +135,13 @@ struct Catalog {
         let folded = text.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil).lowercased()
         let spaced = folded.map { $0.isLetter || $0.isNumber || $0 == "&" ? $0 : " " }
         return String(spaced).split(separator: " ").joined(separator: " ")
+    }
+
+    /// The catalog bottle an ingredient or label line names, matched on whole words ("Coffee liqueur",
+    /// "Tanqueray"). Nil when it names none.
+    func bottleKey(named text: String) -> String? {
+        let padded = " \(Self.normalize(text)) "
+        return labelTerms.first { padded.contains(" \($0.term) ") }?.key
     }
 
     /// Bottle kinds that a typed name could be, best first. Used by search and "What is this bottle?".

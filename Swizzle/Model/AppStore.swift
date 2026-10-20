@@ -89,7 +89,7 @@ final class AppStore {
             plan = s.plan
             premium = s.premium
             filter = s.filter
-            invented = s.invented ?? []
+            invented = (s.invented ?? []).map { Bartender.checked($0, catalog: catalog) }
         }
         shelfPhoto = UIImage(contentsOfFile: Self.shelfURL.path)
     }
@@ -296,6 +296,7 @@ final class AppStore {
     // MARK: Ask the bartender
 
     var inventing = false
+    let bartender = Bartender()
 
     func askTheBartender() async {
         let keys = haveKeys.sorted()
@@ -307,7 +308,7 @@ final class AppStore {
         inventing = true
         defer { inventing = false }
         do {
-            let drinks = try await Bartender.invent(from: keys, catalog: catalog)
+            let drinks = try await bartender.invent(from: keys, catalog: catalog)
             invented = Array((drinks + invented).prefix(12))
             persist()
             show("\(drinks.count) new drinks added")
