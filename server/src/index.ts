@@ -64,6 +64,12 @@ soda water, tonic, ginger beer, fruit juice, fresh herbs, fruit, egg white, salt
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+    const key = env.ANTHROPIC_API_KEY?.trim();
+    // A setup check to open in a browser. It never shows the key itself.
+    if (url.pathname === "/health") {
+      const state = !key ? "missing" : key.startsWith("sk-ant-") ? "set" : "doesn't look like an Anthropic key";
+      return json({ key: state, model: env.MODEL });
+    }
     if (url.pathname !== "/bartender") return json({ error: "Not found" }, 404);
     if (request.method !== "POST") return json({ error: "Use POST" }, 405);
 
@@ -83,11 +89,11 @@ export default {
       .filter(Boolean)
       .join("\n");
 
-    if (!env.ANTHROPIC_API_KEY) {
+    if (!key) {
       console.error("No ANTHROPIC_API_KEY secret. Run: npx wrangler secret put ANTHROPIC_API_KEY");
       return json({ error: "The bartender isn’t set up yet." }, 503);
     }
-    const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY, maxRetries: 1, timeout: 50_000 });
+    const client = new Anthropic({ apiKey: key, maxRetries: 1, timeout: 50_000 });
     try {
       const message = await client.beta.messages.parse({
         model: env.MODEL,
