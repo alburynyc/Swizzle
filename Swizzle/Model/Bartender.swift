@@ -1,8 +1,11 @@
 import Foundation
 import FoundationModels
+import UIKit
 
-/// Ask the bartender: invents three new drinks from the bottles on the shelf with Apple's on-device
-/// model, so it works offline with no server or API key. Needs an iPhone with Apple Intelligence.
+/// Ask the bartender: invents three new drinks from the bottles on the shelf. Claude does the
+/// inventing through Swizzle's server (see `server/`). When the server can't be reached, or isn't set
+/// up yet, Apple's on-device model steps in, on iPhones with Apple Intelligence. Either way, every
+/// drink is checked against the shelf here before it's shown.
 @MainActor
 final class Bartender {
     struct Failure: Error {
@@ -11,11 +14,15 @@ final class Bartender {
 
     static let drinksPerAsk = 3
 
-    /// A session loaded ahead of time, so the first answer starts sooner.
+    /// A session loaded ahead of time, so the first on-device answer starts sooner.
     private var warmSession: LanguageModelSession?
 
     /// Why the bartender can't work on this device, or nil when it can.
     static var unavailableReason: String? {
+        Config.bartenderURL == nil ? onDeviceUnavailableReason : nil
+    }
+
+    private static var onDeviceUnavailableReason: String? {
         switch SystemLanguageModel.default.availability {
         case .available:
             return nil
@@ -32,27 +39,90 @@ final class Bartender {
         }
     }
 
-    private static let instructions = """
-        You are the bartender in a cocktail app called Swizzle. You invent original, balanced cocktails \
-        that someone can make at home with only the bottles they say they have, plus fridge and pantry items.
-        """
-
-    /// Loads the model while the person looks at For You.
+    /// Loads the on-device model while the person looks at For You, when it's the one that will answer.
     func prewarm() {
-        guard Self.unavailableReason == nil, warmSession == nil else { return }
+        guard Config.bartenderURL == nil, Self.onDeviceUnavailableReason == nil, warmSession == nil else { return }
         let session = LanguageModelSession(instructions: Self.instructions)
         session.prewarm()
         warmSession = session
     }
 
-    func invent(from keys: [String], catalog: Catalog) async throws -> [Recipe] {
-        if let reason = Self.unavailableReason { throw Failure(message: reason + ".") }
+    /// `avoid` lists drinks already invented for this person, so Claude doesn't repeat them.
+    func invent(from keys: [String], avoid: [String], catalog: Catalog) async throws -> [Recipe] {
+        let names = keys.map { catalog.bottle($0)?.name ?? $0 }
+        let shelf = Set(keys)
+        let stamp = Int(Date().timeIntervalSince1970)
+        func recipes(_ drafts: [Draft]) -> [Recipe] {
+            var drinks: [Recipe] = []
+            for draft in drafts where drinks.count < Self.drinksPerAsk {
+                if let recipe = Self.recipe(from: draft, id: "ai-\(stamp)-\(drinks.count)", shelf: shelf, catalog: catalog),
+                   !drinks.contains(where: { $0.name == recipe.name }) {
+                    drinks.append(recipe)
+                }
+            }
+            return drinks
+        }
+
+        if let url = Config.bartenderURL {
+            do {
+                let drinks = recipes(try await askClaude(url: url, bottles: names, avoid: avoid))
+                if !drinks.isEmpty { return drinks }
+            } catch let failure as Failure where Self.onDeviceUnavailableReason != nil {
+                throw failure
+            } catch where Self.onDeviceUnavailableReason != nil {
+                throw Failure(message: "Couldn’t reach the bartender. Check your connection and try again.")
+            } catch {
+                // Offline or the server is down: the on-device model takes over below.
+            }
+        }
+        if let reason = Self.onDeviceUnavailableReason { throw Failure(message: reason + ".") }
+        let drinks = try await askOnDevice(bottles: names, keep: recipes)
+        if drinks.isEmpty { throw Failure(message: "The bartender couldn’t come up with anything. Try again.") }
+        return drinks
+    }
+
+    // MARK: Claude, through Swizzle's server
+
+    private struct ClaudeRequest: Encodable {
+        let bottles: [String]
+        let count: Int
+        let avoid: [String]
+    }
+
+    private struct ClaudeResponse: Decodable {
+        let drinks: [Draft]?
+        let error: String?
+    }
+
+    private func askClaude(url: URL, bottles: [String], avoid: [String]) async throws -> [Draft] {
+        var request = URLRequest(url: url, timeoutInterval: 60)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        // Lets the server hold each phone to a few asks a minute.
+        request.setValue(UIDevice.current.identifierForVendor?.uuidString, forHTTPHeaderField: "X-Swizzle-Device")
+        request.httpBody = try JSONEncoder().encode(ClaudeRequest(bottles: bottles, count: Self.drinksPerAsk, avoid: Array(avoid.prefix(24))))
+        let (data, response) = try await URLSession.shared.data(for: request)
+        let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+        let body = try? JSONDecoder().decode(ClaudeResponse.self, from: data)
+        if status == 429, let message = body?.error { throw Failure(message: message) }
+        guard status == 200, let drinks = body?.drinks else { throw URLError(.badServerResponse) }
+        return drinks
+    }
+
+    // MARK: Apple's on-device model
+
+    private static let instructions = """
+        You are the bartender in a cocktail app called Swizzle. You invent original, balanced cocktails \
+        that someone can make at home with only the bottles they say they have, plus fridge and pantry items.
+        """
+
+    private func askOnDevice(bottles names: [String], keep: ([Draft]) -> [Recipe]) async throws -> [Recipe] {
         let session = warmSession ?? LanguageModelSession(instructions: Self.instructions)
         warmSession = nil
         defer { prewarm() }
 
-        let bottles = keys.map { catalog.bottle($0)?.name ?? $0 }.joined(separator: ", ")
-        let stamp = Int(Date().timeIntervalSince1970)
+        let bottles = names.joined(separator: ", ")
+        var drafts: [Draft] = []
         var drinks: [Recipe] = []
         // The small model sometimes slips in a bottle that isn't on the shelf. Those drinks are
         // dropped, and it's asked once more for replacements.
@@ -78,20 +148,37 @@ final class Bartender {
                 if drinks.isEmpty { throw error }
                 break
             }
-            for drink in menu.drinks where drinks.count < Self.drinksPerAsk {
-                if let recipe = Self.recipe(from: drink, id: "ai-\(stamp)-\(drinks.count)", shelf: Set(keys), catalog: catalog),
-                   !drinks.contains(where: { $0.name == recipe.name }) {
-                    drinks.append(recipe)
-                }
-            }
+            drafts += menu.drinks.map(Draft.init)
+            drinks = keep(drafts)
         }
-        if drinks.isEmpty { throw Failure(message: "The bartender couldn’t come up with anything. Try again.") }
         return drinks
     }
 
-    /// Turns the model's answer into a recipe. Each ingredient's bottle is worked out from its name, not
+    // MARK: Checking a drink against the shelf
+
+    /// A drink as either model writes it, before it's checked.
+    fileprivate struct Draft: Decodable {
+        struct Item: Decodable {
+            let amount: String
+            let item: String
+        }
+
+        struct Instruction: Decodable {
+            let verb: String
+            let text: String
+        }
+
+        let name: String
+        let glass: String
+        let categories: [String]
+        let colors: [String]
+        let ingredients: [Item]
+        let steps: [Instruction]
+    }
+
+    /// Turns a model's answer into a recipe. Each ingredient's bottle is worked out from its name, not
     /// taken on the model's word, and a drink that needs a bottle that isn't on the shelf is dropped.
-    private static func recipe(from drink: Drink, id: String, shelf: Set<String>, catalog: Catalog) -> Recipe? {
+    private static func recipe(from drink: Draft, id: String, shelf: Set<String>, catalog: Catalog) -> Recipe? {
         var ing: [Ingredient] = []
         for x in drink.ingredients {
             let item = x.item.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -154,7 +241,7 @@ final class Bartender {
         return .pantry
     }
 
-    // What the model fills in.
+    // What the on-device model fills in.
 
     @Generable
     struct Menu {
@@ -192,5 +279,13 @@ final class Bartender {
         var verb: String
         @Guide(description: "One clear sentence")
         var text: String
+    }
+}
+
+private extension Bartender.Draft {
+    init(_ drink: Bartender.Drink) {
+        self.init(name: drink.name, glass: drink.glass, categories: drink.categories, colors: drink.colors,
+                  ingredients: drink.ingredients.map { Item(amount: $0.amount, item: $0.item) },
+                  steps: drink.steps.map { Instruction(verb: $0.verb, text: $0.text) })
     }
 }

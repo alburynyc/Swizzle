@@ -29,8 +29,9 @@ struct ForYouView: View {
     }
 }
 
-/// "Ask the bartender" invents three drinks from the person's bottles (see `Bartender`). Its drifting
-/// color is the one place Swizzle allows color, by Garrett's rule for bartender drinks.
+/// "Ask the bartender" invents three drinks from the person's bottles (see `Bartender`); free accounts
+/// get a few asks a day. Its drifting color is the one place Swizzle allows color, by Garrett's rule
+/// for bartender drinks.
 private struct AskTheBartenderCard: View {
     @Environment(AppStore.self) private var store
     @State private var drift = false
@@ -38,9 +39,10 @@ private struct AskTheBartenderCard: View {
 
     var body: some View {
         let unavailable = Bartender.unavailableReason
+        let left = store.freeAsksLeft.map { $0 == 0 ? " · No free asks left today" : " · \($0) free today" } ?? ""
         let subtitle = store.inventing ? "Inventing three drinks from what’s on your shelf"
             : unavailable ?? (store.bar.isEmpty ? "Add bottles to your library first"
-                              : "Three new drinks invented from your \(store.haveKeys.count) bottles")
+                              : "Three new drinks from your \(store.haveKeys.count) bottles" + left)
         Button {
             Task { await store.askTheBartender() }
         } label: {

@@ -77,6 +77,8 @@ final class AppStore {
         var premium: Bool
         var filter: HomeFilter
         var invented: [Recipe]?
+        var askDay: Int?
+        var asksToday: Int?
     }
 
     init() {
@@ -90,12 +92,15 @@ final class AppStore {
             premium = s.premium
             filter = s.filter
             invented = (s.invented ?? []).map { Bartender.checked($0, catalog: catalog) }
+            askDay = s.askDay ?? 0
+            asksToday = s.asksToday ?? 0
         }
         shelfPhoto = UIImage(contentsOfFile: Self.shelfURL.path)
     }
 
     func persist() {
-        let s = Saved(onboarded: onboarded, name: name, bar: bar, saved: saved, plan: plan, premium: premium, filter: filter, invented: invented)
+        let s = Saved(onboarded: onboarded, name: name, bar: bar, saved: saved, plan: plan, premium: premium, filter: filter, invented: invented,
+                      askDay: askDay, asksToday: asksToday)
         if let data = try? JSONEncoder().encode(s) {
             UserDefaults.standard.set(data, forKey: Self.stateKey)
         }
@@ -298,6 +303,19 @@ final class AppStore {
     var inventing = false
     let bartender = Bartender()
 
+    /// Free accounts get a few asks a day. Premium is unlimited (the server still caps asks a minute).
+    static let freeAsksPerDay = 3
+    private var askDay = 0
+    private var asksToday = 0
+
+    private static var today: Int { Calendar.current.ordinality(of: .day, in: .era, for: .now) ?? 0 }
+
+    /// Asks left today on the free plan, or nil with Premium.
+    var freeAsksLeft: Int? {
+        guard !premium else { return nil }
+        return askDay == Self.today ? max(0, Self.freeAsksPerDay - asksToday) : Self.freeAsksPerDay
+    }
+
     func askTheBartender() async {
         let keys = haveKeys.sorted()
         guard !keys.isEmpty else {
@@ -305,11 +323,20 @@ final class AppStore {
             return
         }
         guard !inventing else { return }
+        if freeAsksLeft == 0 {
+            show("That’s today’s \(Self.freeAsksPerDay) free asks. Premium has unlimited.")
+            return
+        }
         inventing = true
         defer { inventing = false }
         do {
-            let drinks = try await bartender.invent(from: keys, catalog: catalog)
+            let drinks = try await bartender.invent(from: keys, avoid: invented.map(\.name), catalog: catalog)
             invented = Array((drinks + invented).prefix(12))
+            if askDay != Self.today {
+                askDay = Self.today
+                asksToday = 0
+            }
+            asksToday += 1
             persist()
             show("\(drinks.count) new drinks added")
         } catch let error as Bartender.Failure {
