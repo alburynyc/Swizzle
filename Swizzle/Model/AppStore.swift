@@ -146,13 +146,12 @@ final class AppStore {
 
     var editorsPick: Recipe? { catalog.recipe(Self.editorsPickID) }
 
-    /// A drink from what the bar can make (or is one bottle from), changing once a day. Photographed drinks first.
+    /// A drink from what the bar can make (or is one bottle from), changing once a day, other than the editor's pick.
     var todaysPick: Recipe {
         let can = canMake, away = oneAway
-        let pool = !can.isEmpty ? can : !away.isEmpty ? away : catalog.recipes
+        var pool = !can.isEmpty ? can : !away.isEmpty ? away : catalog.recipes
+        if pool.count > 1 { pool.removeAll { $0.id == Self.editorsPickID } }
         let day = Int(Date().timeIntervalSince1970 / 86_400)
-        let withPhoto = pool.filter { RecipePhoto.name(for: $0.id) != nil && $0.id != Self.editorsPickID }
-        if !withPhoto.isEmpty { return withPhoto[day % withPhoto.count] }
         return pool[day % pool.count]
     }
 

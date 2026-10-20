@@ -1,18 +1,7 @@
 import SwiftUI
 
-/// The few drinks with real photography so far. Every other drink shows its glass icon until the shoot.
-enum RecipePhoto {
-    static func name(for recipeID: String) -> String? {
-        switch recipeID {
-        case "negroni": "Photo-negroni"
-        case "oldfashioned": "Photo-oldfashioned"
-        case "martini": "Photo-martini"
-        default: nil
-        }
-    }
-}
-
-/// A recipe's picture: its photo when there is one, otherwise its glass icon on a soft paper gradient.
+/// A recipe's picture: its glass icon from the Figma glassware library on a soft paper gradient, or
+/// for a bartender drink, its own colors. Photos come back after Garrett's shoot.
 struct RecipeArt: View {
     let recipe: Recipe
     var iconScale: CGFloat = 0.4
@@ -22,31 +11,37 @@ struct RecipeArt: View {
         if recipe.isInvented {
             InventedArt(colors: recipe.colors ?? [], glass: recipe.glass, iconScale: iconScale, lineWidth: lineWidth)
                 .accessibilityHidden(true)
-        } else if let photo = RecipePhoto.name(for: recipe.id) {
-            Color.field
-                .overlay {
-                    Image(photo)
-                        .resizable()
-                        .scaledToFill()
-                }
-                .clipped()
-                .accessibilityHidden(true)
         } else {
-            LinearGradient(
-                colors: [Color(red: 250 / 255, green: 250 / 255, blue: 249 / 255),
-                         Color(red: 236 / 255, green: 235 / 255, blue: 232 / 255)],
-                startPoint: .topLeading, endPoint: .bottomTrailing
-            )
-            .overlay {
-                GeometryReader { geo in
-                    let side = min(geo.size.width * iconScale, geo.size.height * 0.7)
-                    GlassIcon(catalogGlass: recipe.glass)
-                        .stroke(Color.ink, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
-                        .frame(width: side, height: side)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+            GlassArt(glasses: [recipe.glass], iconScale: iconScale, lineWidth: lineWidth)
+                .accessibilityHidden(true)
+        }
+    }
+}
+
+/// One or more glass icons side by side on the paper gradient.
+struct GlassArt: View {
+    let glasses: [String]
+    var iconScale: CGFloat = 0.4
+    var lineWidth: CGFloat = 1.6
+
+    var body: some View {
+        LinearGradient(
+            colors: [Color(red: 250 / 255, green: 250 / 255, blue: 249 / 255),
+                     Color(red: 236 / 255, green: 235 / 255, blue: 232 / 255)],
+            startPoint: .topLeading, endPoint: .bottomTrailing
+        )
+        .overlay {
+            GeometryReader { geo in
+                let side = min(geo.size.width * iconScale, geo.size.height * 0.7)
+                HStack(spacing: side * 0.35) {
+                    ForEach(Array(glasses.enumerated()), id: \.offset) { _, glass in
+                        GlassIcon(catalogGlass: glass)
+                            .stroke(Color.ink, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
+                            .frame(width: side, height: side)
+                    }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .accessibilityHidden(true)
         }
     }
 }

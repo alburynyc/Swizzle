@@ -105,14 +105,15 @@ private struct Intro: View {
     }
 }
 
-private struct OnboardingPhoto: View {
-    let name: String
+/// Glass icons standing in for drink photos until the photoshoot.
+private struct OnboardingArt: View {
+    let glasses: [String]
     let aspect: CGFloat
     var body: some View {
-        Color.field
+        GlassArt(glasses: glasses, iconScale: glasses.count > 1 ? 0.16 : 0.32, lineWidth: 2)
             .aspectRatio(aspect, contentMode: .fit)
-            .overlay { Image(name).resizable().scaledToFill() }
             .clipShape(.rect(cornerRadius: 20))
+            .accessibilityHidden(true)
     }
 }
 
@@ -128,8 +129,7 @@ private struct WelcomeStep: View {
                 Text("Your bottles. Better cocktail recipes.").font(SwizzleFont.ui(13))
             }
             .frame(maxWidth: .infinity)
-            OnboardingPhoto(name: "Photo-negroni", aspect: 370 / 324)
-                .accessibilityLabel("Two Negronis on ice with orange peel")
+            OnboardingArt(glasses: ["coupe"], aspect: 370 / 324)
             Intro(eyebrow: "Your bar. Your next favorite.",
                   lede: "Discover cocktails you’ll love, made with the bottles you already have.")
         } actions: {
@@ -374,7 +374,7 @@ private struct PremiumStep: View {
         let yearly = store.plan == .yearly
         StepLayout {
             Intro(eyebrow: "Introducing Premium", title: "Your bar, with no limits.")
-            OnboardingPhoto(name: "Photo-ofwide", aspect: 370 / 142)
+            OnboardingArt(glasses: ["rocks", "coupe", "highball"], aspect: 370 / 142)
                 .overlay(alignment: .topLeading) {
                     Label("The good stuff", systemImage: "sparkle")
                         .font(SwizzleFont.ui(11))

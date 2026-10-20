@@ -34,8 +34,7 @@ Every recipe card, row, pick and recipe page has a bookmark. Saved recipes show 
 | `server` | The bartender server (Cloudflare Worker) that calls Claude |
 
 - **House style:** white and black only, Liquid Glass for the chrome (search fields, tab bar, pills, bookmarks), Times New Roman for display type and Helvetica Neue for everything else. Colors and fonts live in `Design/Theme.swift`.
-- **Cocktail icons:** every drink without a photo shows its glass from the Figma board "Glassware — Cocktail icon library" (`Design/GlassIcon.swift`). Mugs use the Highball icon.
-- **Photos:** only the Negroni, Old Fashioned and Dry Martini have photography so far, taken from the Figma file at 1x.
+- **Cocktail icons:** every drink shows its glass from the Figma board "Glassware — Cocktail icon library" (`Design/GlassIcon.swift`), including on the intro screens. Mugs use the Highball icon. Drink photos come later, after the photoshoot; the only photo left is the bar shelf in the intro's camera step.
 - **Matching:** a recipe needs every distinct `bottle` key in its ingredients. Anything without a key counts as pantry.
 - **Label scan:** Vision reads the text in the photo on the device, and each line is matched against the brand names and label words in `bottles.json`. You then confirm or correct what it found.
 - **Data:** `Resources/recipes.json` and `Resources/bottles.json` are copies of the project's shared catalog. Update them there first, then copy them in.
