@@ -83,6 +83,10 @@ export default {
       .filter(Boolean)
       .join("\n");
 
+    if (!env.ANTHROPIC_API_KEY) {
+      console.error("No ANTHROPIC_API_KEY secret. Run: npx wrangler secret put ANTHROPIC_API_KEY");
+      return json({ error: "The bartender isn’t set up yet." }, 503);
+    }
     const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY, maxRetries: 1, timeout: 50_000 });
     try {
       const message = await client.beta.messages.parse({
