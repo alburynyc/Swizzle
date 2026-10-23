@@ -1,0 +1,15 @@
+// Cloudflare settings for the bartender server. See README.md in this folder.
+{
+  "name": "swizzle-bartender",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    // The Claude model the bartender uses. Change it here and run `npm run deploy` again.
+    "MODEL": "claude-sonnet-5-5"
+  },
+  // At most 6 asks a minute from one phone, so a stuck button or a script can't run up the bill.
+  "ratelimits": [
+    { "name": "ASK_LIMIT", "namespace_id": "1001", "simple": { "limit": 6, "period": 60 } }
+  ]
+}

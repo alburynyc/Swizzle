@@ -1,0 +1,863 @@
+{
+ "version": 1,
+ "groups": [
+  "Spirits",
+  "Liqueurs",
+  "Vermouth & amari",
+  "Wine & bubbles",
+  "Bitters"
+ ],
+ "bottles": [
+  {
+   "key": "gin",
+   "name": "Gin",
+   "group": "Spirits",
+   "aliases": [
+    "tanqueray",
+    "hendrick",
+    "bombay",
+    "beefeater",
+    "plymouth",
+    "the botanist",
+    "aviation gin",
+    "monkey 47",
+    "sipsmith",
+    "roku",
+    "gordon",
+    "fords gin",
+    "ford's gin",
+    "bulldog",
+    "nolet",
+    "citadelle",
+    "old tom",
+    "london dry",
+    "genever",
+    "malfy",
+    "empress 1908"
+   ]
+  },
+  {
+   "key": "vodka",
+   "name": "Vodka",
+   "group": "Spirits",
+   "aliases": [
+    "tito",
+    "grey goose",
+    "absolut",
+    "belvedere",
+    "ketel one",
+    "smirnoff",
+    "stolichnaya",
+    "stoli",
+    "ciroc",
+    "chopin",
+    "svedka",
+    "skyy",
+    "reyka",
+    "new amsterdam",
+    "citron",
+    "vanilla vodka"
+   ]
+  },
+  {
+   "key": "tequila",
+   "name": "Tequila",
+   "group": "Spirits",
+   "aliases": [
+    "patron",
+    "patrón",
+    "casamigos",
+    "don julio",
+    "espolon",
+    "espolòn",
+    "herradura",
+    "fortaleza",
+    "olmeca",
+    "altos",
+    "jose cuervo",
+    "cuervo",
+    "1800",
+    "clase azul",
+    "teremana",
+    "el tesoro",
+    "siete leguas",
+    "tapatio",
+    "cazadores",
+    "milagro",
+    "reposado",
+    "añejo",
+    "anejo",
+    "blanco",
+    "plata"
+   ]
+  },
+  {
+   "key": "mezcal",
+   "name": "Mezcal",
+   "group": "Spirits",
+   "aliases": [
+    "del maguey",
+    "montelobos",
+    "ilegal",
+    "vida",
+    "400 conejos",
+    "banhez",
+    "la venenosa",
+    "sombra",
+    "espadin",
+    "espadín"
+   ]
+  },
+  {
+   "key": "whiterum",
+   "name": "White rum",
+   "group": "Spirits",
+   "aliases": [
+    "bacardi",
+    "bacardí",
+    "havana club 3",
+    "plantation 3",
+    "flor de caña 4",
+    "white rum",
+    "silver rum",
+    "light rum",
+    "rum blanco",
+    "wray & nephew",
+    "wray and nephew",
+    "rhum agricole blanc",
+    "clement blanc",
+    "neisson",
+    "probitas",
+    "cana brava"
+   ]
+  },
+  {
+   "key": "darkrum",
+   "name": "Aged or dark rum",
+   "group": "Spirits",
+   "aliases": [
+    "goslings",
+    "gosling",
+    "kraken",
+    "sailor jerry",
+    "appleton",
+    "diplomatico",
+    "diplomático",
+    "mount gay",
+    "el dorado",
+    "plantation",
+    "havana club 7",
+    "zacapa",
+    "myers",
+    "captain morgan",
+    "spiced rum",
+    "aged rum",
+    "dark rum",
+    "black rum",
+    "gold rum",
+    "blackstrap",
+    "cruzan",
+    "smith & cross",
+    "doorly",
+    "foursquare",
+    "rhum agricole vieux",
+    "bacardi 8",
+    "pusser"
+   ]
+  },
+  {
+   "key": "bourbon",
+   "name": "Bourbon",
+   "group": "Spirits",
+   "aliases": [
+    "maker's mark",
+    "makers mark",
+    "buffalo trace",
+    "woodford",
+    "bulleit",
+    "wild turkey",
+    "four roses",
+    "knob creek",
+    "jim beam",
+    "elijah craig",
+    "eagle rare",
+    "basil hayden",
+    "old forester",
+    "evan williams",
+    "angel's envy",
+    "angels envy",
+    "blanton",
+    "weller",
+    "michter",
+    "larceny",
+    "booker",
+    "1792",
+    "old grand-dad",
+    "heaven hill",
+    "bourbon"
+   ]
+  },
+  {
+   "key": "rye",
+   "name": "Rye whiskey",
+   "group": "Spirits",
+   "aliases": [
+    "rittenhouse",
+    "sazerac rye",
+    "old overholt",
+    "high west",
+    "pikesville",
+    "whistlepig",
+    "bulleit rye",
+    "knob creek rye",
+    "michter's rye",
+    "templeton",
+    "redemption",
+    "rye whiskey",
+    "straight rye"
+   ]
+  },
+  {
+   "key": "scotch",
+   "name": "Scotch",
+   "group": "Spirits",
+   "aliases": [
+    "johnnie walker",
+    "glenlivet",
+    "glenfiddich",
+    "laphroaig",
+    "macallan",
+    "lagavulin",
+    "monkey shoulder",
+    "talisker",
+    "ardbeg",
+    "dewar",
+    "chivas",
+    "famous grouse",
+    "balvenie",
+    "highland park",
+    "oban",
+    "glenmorangie",
+    "caol ila",
+    "bowmore",
+    "single malt",
+    "blended scotch",
+    "scotch whisky"
+   ]
+  },
+  {
+   "key": "irishwhiskey",
+   "name": "Irish whiskey",
+   "group": "Spirits",
+   "aliases": [
+    "jameson",
+    "bushmills",
+    "redbreast",
+    "tullamore",
+    "powers",
+    "teeling",
+    "green spot",
+    "writers tears",
+    "writer's tears",
+    "slane",
+    "proper twelve",
+    "irish whiskey"
+   ]
+  },
+  {
+   "key": "cognac",
+   "name": "Cognac or brandy",
+   "group": "Spirits",
+   "aliases": [
+    "hennessy",
+    "rémy",
+    "remy martin",
+    "martell",
+    "courvoisier",
+    "pierre ferrand",
+    "ferrand",
+    "hine",
+    "camus",
+    "christian brothers",
+    "e&j",
+    "torres",
+    "brandy",
+    "cognac",
+    "armagnac"
+   ]
+  },
+  {
+   "key": "applebrandy",
+   "name": "Apple brandy",
+   "group": "Spirits",
+   "aliases": [
+    "laird",
+    "applejack",
+    "calvados",
+    "boulard",
+    "christian drouin",
+    "pere magloire",
+    "père magloire",
+    "apple brandy"
+   ]
+  },
+  {
+   "key": "pisco",
+   "name": "Pisco",
+   "group": "Spirits",
+   "aliases": [
+    "barsol",
+    "macchu pisco",
+    "capel",
+    "control c",
+    "porton",
+    "caravedo",
+    "pisco"
+   ]
+  },
+  {
+   "key": "cachaca",
+   "name": "Cachaça",
+   "group": "Spirits",
+   "aliases": [
+    "leblon",
+    "avuá",
+    "avua",
+    "novo fogo",
+    "ypioca",
+    "ypióca",
+    "velho barreiro",
+    "cachaça",
+    "cachaca"
+   ]
+  },
+  {
+   "key": "absinthe",
+   "name": "Absinthe",
+   "group": "Spirits",
+   "aliases": [
+    "pernod",
+    "herbsaint",
+    "st. george absinthe",
+    "lucid",
+    "kübler",
+    "kubler",
+    "la fée",
+    "la fee",
+    "ricard",
+    "pastis",
+    "absinthe"
+   ]
+  },
+  {
+   "key": "aquavit",
+   "name": "Aquavit",
+   "group": "Spirits",
+   "aliases": [
+    "linie",
+    "aalborg",
+    "krogstad",
+    "aquavit",
+    "akvavit"
+   ]
+  },
+  {
+   "key": "triplesec",
+   "name": "Orange liqueur",
+   "group": "Liqueurs",
+   "aliases": [
+    "cointreau",
+    "grand marnier",
+    "triple sec",
+    "dry curaçao",
+    "dry curacao",
+    "orange curaçao",
+    "orange curacao",
+    "pierre ferrand dry curaçao",
+    "combier",
+    "bols triple sec",
+    "dekuyper triple sec"
+   ]
+  },
+  {
+   "key": "bluecuracao",
+   "name": "Blue curaçao",
+   "group": "Liqueurs",
+   "aliases": [
+    "blue curaçao",
+    "blue curacao",
+    "bols blue"
+   ]
+  },
+  {
+   "key": "elderflower",
+   "name": "Elderflower liqueur",
+   "group": "Liqueurs",
+   "aliases": [
+    "st-germain",
+    "st germain",
+    "st. germain",
+    "saint germain",
+    "elderflower"
+   ]
+  },
+  {
+   "key": "coffee",
+   "name": "Coffee liqueur",
+   "group": "Liqueurs",
+   "aliases": [
+    "kahlua",
+    "kahlúa",
+    "mr black",
+    "mr. black",
+    "tia maria",
+    "borghetti",
+    "coffee liqueur"
+   ]
+  },
+  {
+   "key": "maraschino",
+   "name": "Maraschino",
+   "group": "Liqueurs",
+   "aliases": [
+    "luxardo maraschino",
+    "maraska",
+    "maraschino"
+   ]
+  },
+  {
+   "key": "chartreuse",
+   "name": "Green Chartreuse",
+   "group": "Liqueurs",
+   "aliases": [
+    "green chartreuse",
+    "chartreuse verte",
+    "chartreuse"
+   ]
+  },
+  {
+   "key": "yellowchartreuse",
+   "name": "Yellow Chartreuse",
+   "group": "Liqueurs",
+   "aliases": [
+    "yellow chartreuse",
+    "chartreuse jaune"
+   ]
+  },
+  {
+   "key": "amaretto",
+   "name": "Amaretto",
+   "group": "Liqueurs",
+   "aliases": [
+    "disaronno",
+    "lazzaroni",
+    "luxardo amaretto",
+    "amaretto"
+   ]
+  },
+  {
+   "key": "benedictine",
+   "name": "Bénédictine",
+   "group": "Liqueurs",
+   "aliases": [
+    "bénédictine",
+    "benedictine",
+    "dom b&b",
+    "b&b"
+   ]
+  },
+  {
+   "key": "drambuie",
+   "name": "Drambuie",
+   "group": "Liqueurs",
+   "aliases": [
+    "drambuie"
+   ]
+  },
+  {
+   "key": "cassis",
+   "name": "Crème de cassis",
+   "group": "Liqueurs",
+   "aliases": [
+    "crème de cassis",
+    "creme de cassis",
+    "cassis"
+   ]
+  },
+  {
+   "key": "mure",
+   "name": "Crème de mûre",
+   "group": "Liqueurs",
+   "aliases": [
+    "crème de mûre",
+    "creme de mure",
+    "blackberry liqueur"
+   ]
+  },
+  {
+   "key": "cacao",
+   "name": "Crème de cacao",
+   "group": "Liqueurs",
+   "aliases": [
+    "crème de cacao",
+    "creme de cacao",
+    "tempus fugit cacao",
+    "giffard cacao"
+   ]
+  },
+  {
+   "key": "menthe",
+   "name": "Crème de menthe",
+   "group": "Liqueurs",
+   "aliases": [
+    "crème de menthe",
+    "creme de menthe",
+    "get 27",
+    "get 31"
+   ]
+  },
+  {
+   "key": "violette",
+   "name": "Crème de violette",
+   "group": "Liqueurs",
+   "aliases": [
+    "crème de violette",
+    "creme de violette",
+    "rothman & winter",
+    "rothman and winter",
+    "crème yvette",
+    "creme yvette"
+   ]
+  },
+  {
+   "key": "apricot",
+   "name": "Apricot liqueur",
+   "group": "Liqueurs",
+   "aliases": [
+    "apricot brandy",
+    "apricot liqueur",
+    "abricot",
+    "rothman & winter orchard apricot",
+    "marie brizard apry",
+    "giffard abricot"
+   ]
+  },
+  {
+   "key": "cherry",
+   "name": "Cherry liqueur",
+   "group": "Liqueurs",
+   "aliases": [
+    "cherry heering",
+    "heering",
+    "sangue morlacco",
+    "cherry brandy",
+    "cherry liqueur",
+    "kirsch"
+   ]
+  },
+  {
+   "key": "peach",
+   "name": "Peach liqueur",
+   "group": "Liqueurs",
+   "aliases": [
+    "peach schnapps",
+    "peach liqueur",
+    "peach brandy",
+    "crème de pêche",
+    "creme de peche",
+    "archers",
+    "dekuyper peachtree",
+    "giffard peche"
+   ]
+  },
+  {
+   "key": "raspberry",
+   "name": "Raspberry liqueur",
+   "group": "Liqueurs",
+   "aliases": [
+    "chambord",
+    "crème de framboise",
+    "creme de framboise",
+    "raspberry liqueur"
+   ]
+  },
+  {
+   "key": "passionfruit",
+   "name": "Passion fruit liqueur",
+   "group": "Liqueurs",
+   "aliases": [
+    "passoã",
+    "passoa",
+    "giffard passion",
+    "passion fruit liqueur"
+   ]
+  },
+  {
+   "key": "falernum",
+   "name": "Falernum",
+   "group": "Liqueurs",
+   "aliases": [
+    "velvet falernum",
+    "john d. taylor",
+    "falernum"
+   ]
+  },
+  {
+   "key": "licor43",
+   "name": "Licor 43",
+   "group": "Liqueurs",
+   "aliases": [
+    "licor 43",
+    "cuarenta y tres"
+   ]
+  },
+  {
+   "key": "sloegin",
+   "name": "Sloe gin",
+   "group": "Liqueurs",
+   "aliases": [
+    "sloe gin",
+    "plymouth sloe",
+    "hayman's sloe"
+   ]
+  },
+  {
+   "key": "allspice",
+   "name": "Allspice dram",
+   "group": "Liqueurs",
+   "aliases": [
+    "allspice dram",
+    "pimento dram",
+    "st. elizabeth"
+   ]
+  },
+  {
+   "key": "pimms",
+   "name": "Pimm's",
+   "group": "Liqueurs",
+   "aliases": [
+    "pimm's",
+    "pimms"
+   ]
+  },
+  {
+   "key": "sweetvermouth",
+   "name": "Sweet vermouth",
+   "group": "Vermouth & amari",
+   "aliases": [
+    "carpano",
+    "antica formula",
+    "cocchi vermouth di torino",
+    "cocchi di torino",
+    "punt e mes",
+    "martini rosso",
+    "martini & rossi rosso",
+    "cinzano rosso",
+    "dolin rouge",
+    "noilly prat rouge",
+    "vermouth rosso",
+    "rosso",
+    "sweet vermouth",
+    "red vermouth"
+   ]
+  },
+  {
+   "key": "dryvermouth",
+   "name": "Dry vermouth",
+   "group": "Vermouth & amari",
+   "aliases": [
+    "noilly prat",
+    "dolin dry",
+    "dolin",
+    "martini extra dry",
+    "extra dry",
+    "cinzano extra dry",
+    "dry vermouth",
+    "french vermouth"
+   ]
+  },
+  {
+   "key": "lillet",
+   "name": "Lillet Blanc",
+   "group": "Vermouth & amari",
+   "aliases": [
+    "lillet",
+    "cocchi americano",
+    "kina l'aéro d'or"
+   ]
+  },
+  {
+   "key": "campari",
+   "name": "Campari",
+   "group": "Vermouth & amari",
+   "aliases": [
+    "campari",
+    "bitter campari"
+   ]
+  },
+  {
+   "key": "aperol",
+   "name": "Aperol",
+   "group": "Vermouth & amari",
+   "aliases": [
+    "aperol"
+   ]
+  },
+  {
+   "key": "amaro",
+   "name": "Amaro",
+   "group": "Vermouth & amari",
+   "aliases": [
+    "amaro",
+    "nonino",
+    "averna",
+    "montenegro",
+    "ramazzotti",
+    "meletti",
+    "lucano",
+    "cio ciaro",
+    "ciociaro",
+    "amer picon",
+    "braulio",
+    "nardini"
+   ]
+  },
+  {
+   "key": "fernet",
+   "name": "Fernet",
+   "group": "Vermouth & amari",
+   "aliases": [
+    "fernet",
+    "branca"
+   ]
+  },
+  {
+   "key": "cynar",
+   "name": "Cynar",
+   "group": "Vermouth & amari",
+   "aliases": [
+    "cynar"
+   ]
+  },
+  {
+   "key": "suze",
+   "name": "Suze",
+   "group": "Vermouth & amari",
+   "aliases": [
+    "suze",
+    "salers",
+    "avèze",
+    "aveze",
+    "gentian"
+   ]
+  },
+  {
+   "key": "prosecco",
+   "name": "Sparkling wine",
+   "group": "Wine & bubbles",
+   "aliases": [
+    "prosecco",
+    "champagne",
+    "cava",
+    "crémant",
+    "cremant",
+    "sparkling wine",
+    "brut",
+    "moët",
+    "moet",
+    "veuve",
+    "la marca",
+    "mionetto"
+   ]
+  },
+  {
+   "key": "sherry",
+   "name": "Sherry",
+   "group": "Wine & bubbles",
+   "aliases": [
+    "fino",
+    "manzanilla",
+    "amontillado",
+    "oloroso",
+    "palo cortado",
+    "tio pepe",
+    "tío pepe",
+    "la ina",
+    "lustau",
+    "sherry"
+   ]
+  },
+  {
+   "key": "port",
+   "name": "Port",
+   "group": "Wine & bubbles",
+   "aliases": [
+    "tawny",
+    "ruby port",
+    "graham's",
+    "grahams",
+    "taylor fladgate",
+    "sandeman",
+    "fonseca",
+    "port wine",
+    "porto"
+   ]
+  },
+  {
+   "key": "whitewine",
+   "name": "Dry white wine",
+   "group": "Wine & bubbles",
+   "aliases": [
+    "sauvignon blanc",
+    "pinot grigio",
+    "chablis",
+    "aligoté",
+    "aligote",
+    "white wine"
+   ]
+  },
+  {
+   "key": "redwine",
+   "name": "Red wine",
+   "group": "Wine & bubbles",
+   "aliases": [
+    "malbec",
+    "shiraz",
+    "syrah",
+    "cabernet",
+    "merlot",
+    "red wine"
+   ]
+  },
+  {
+   "key": "angostura",
+   "name": "Angostura bitters",
+   "group": "Bitters",
+   "aliases": [
+    "angostura",
+    "aromatic bitters"
+   ]
+  },
+  {
+   "key": "orangebitters",
+   "name": "Orange bitters",
+   "group": "Bitters",
+   "aliases": [
+    "regans",
+    "regan's",
+    "fee brothers orange",
+    "angostura orange",
+    "orange bitters"
+   ]
+  },
+  {
+   "key": "peychauds",
+   "name": "Peychaud's bitters",
+   "group": "Bitters",
+   "aliases": [
+    "peychaud",
+    "peychaud's"
+   ]
+  }
+ ]
+}
