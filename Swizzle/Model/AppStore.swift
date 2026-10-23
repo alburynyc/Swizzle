@@ -172,6 +172,7 @@ final class AppStore {
     func isSaved(_ id: String) -> Bool { saved.contains(id) }
 
     func toggleSaved(_ recipe: Recipe) {
+        Sounds.pop()
         if isSaved(recipe.id) {
             saved.removeAll { $0 == recipe.id }
             Haptics.removed()
@@ -343,6 +344,7 @@ final class AppStore {
             return
         }
         inventing = true
+        Sounds.shake()
         defer { inventing = false }
         do {
             let drinks = try await bartender.invent(from: keys, avoid: invented.map(\.name), catalog: catalog)
