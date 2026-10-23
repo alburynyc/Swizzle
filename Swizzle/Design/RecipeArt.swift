@@ -1,18 +1,17 @@
 import SwiftUI
 
-/// A recipe's picture: its glass icon from the Figma glassware library on a soft paper gradient, or
+/// A recipe's picture: its hand-drawn glass icon from the Figma glassware library on a soft paper gradient, or
 /// for a bartender drink, its own colors. Photos come back after Garrett's shoot.
 struct RecipeArt: View {
     let recipe: Recipe
     var iconScale: CGFloat = 0.4
-    var lineWidth: CGFloat = 1.6
 
     var body: some View {
         if recipe.isInvented {
-            InventedArt(colors: recipe.colors ?? [], glass: recipe.glass, iconScale: iconScale, lineWidth: lineWidth)
+            InventedArt(colors: recipe.colors ?? [], glass: recipe.glass, iconScale: iconScale)
                 .accessibilityHidden(true)
         } else {
-            GlassArt(glasses: [recipe.glass], iconScale: iconScale, lineWidth: lineWidth)
+            GlassArt(glasses: [recipe.glass], iconScale: iconScale)
                 .accessibilityHidden(true)
         }
     }
@@ -22,7 +21,6 @@ struct RecipeArt: View {
 struct GlassArt: View {
     let glasses: [String]
     var iconScale: CGFloat = 0.4
-    var lineWidth: CGFloat = 1.6
 
     var body: some View {
         LinearGradient(
@@ -36,7 +34,7 @@ struct GlassArt: View {
                 HStack(spacing: side * 0.35) {
                     ForEach(Array(glasses.enumerated()), id: \.offset) { _, glass in
                         GlassIcon(catalogGlass: glass)
-                            .stroke(Color.ink, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
+                            .foregroundStyle(Color.ink)
                             .frame(width: side, height: side)
                     }
                 }
@@ -52,7 +50,6 @@ private struct InventedArt: View {
     let colors: [String]
     let glass: String
     let iconScale: CGFloat
-    let lineWidth: CGFloat
 
     var body: some View {
         var palette = colors.compactMap { UInt32($0.dropFirst(), radix: 16) }.map { Color(hex: $0) }
@@ -67,7 +64,7 @@ private struct InventedArt: View {
                 RadialGradient(colors: [last, last.opacity(0)], center: UnitPoint(x: 0.9, y: 0.9), startRadius: 0, endRadius: reach * 0.6)
                 RadialGradient(colors: [.white.opacity(0.35), .white.opacity(0)], center: UnitPoint(x: 0.3, y: 0), startRadius: 0, endRadius: reach * 0.7)
                 GlassIcon(catalogGlass: glass)
-                    .stroke(Color.white.opacity(0.95), style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
+                    .foregroundStyle(Color.white.opacity(0.95))
                     .frame(width: side, height: side)
                     .shadow(color: .black.opacity(0.18), radius: 1, y: 1)
             }
@@ -95,7 +92,6 @@ struct BookmarkButton: View {
         }
         .buttonStyle(.plain)
         .modifier(BookmarkBackground(saved: on))
-        .sensoryFeedback(.selection, trigger: on)
         .accessibilityLabel(on ? "Remove \(recipe.name) from saved" : "Save \(recipe.name)")
     }
 }

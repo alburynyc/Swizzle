@@ -3,7 +3,9 @@ import SwiftUI
 struct RecipeDetailView: View {
     @Environment(AppStore.self) private var store
     let recipe: Recipe
+    @Environment(\.dismiss) private var dismiss
     @State private var showVariation = false
+    @State private var confirmingDelete = false
 
     var body: some View {
         let ing = showVariation ? recipe.alt?.ing ?? recipe.ing : recipe.ing
@@ -13,7 +15,7 @@ struct RecipeDetailView: View {
 
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                RecipeArt(recipe: recipe, iconScale: 0.38, lineWidth: 2.2)
+                RecipeArt(recipe: recipe, iconScale: 0.38)
                     .aspectRatio(370 / 324, contentMode: .fit)
                     .clipShape(.rect(cornerRadius: 20))
 
@@ -94,6 +96,11 @@ struct RecipeDetailView: View {
         .background(Color.paper)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            if recipe.isInvented {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Delete drink", systemImage: "trash") { confirmingDelete = true }
+                }
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 let on = store.isSaved(recipe.id)
                 Button {
@@ -104,7 +111,7 @@ struct RecipeDetailView: View {
                 .accessibilityLabel(on ? "Remove \(recipe.name) from saved" : "Save \(recipe.name)")
             }
         }
-        .sensoryFeedback(.selection, trigger: store.isSaved(recipe.id))
+        .deleteDrinkDialog(recipe, isPresented: $confirmingDelete) { dismiss() }
     }
 }
 
@@ -123,18 +130,45 @@ private struct IngredientRow: View {
             Text(ingredient.item)
                 .font(SwizzleFont.ui(15))
                 .frame(maxWidth: .infinity, alignment: .leading)
-            if let missing {
+            if missing == true, let key = ingredient.bottle {
+                ListButton(key: key)
+            } else if missing == false {
                 HStack(spacing: 5) {
-                    Image(systemName: missing ? "circle" : "circle.fill").font(.system(size: 7))
-                    Text(missing ? "NOT IN YOUR BAR" : "IN YOUR BAR")
+                    Image(systemName: "circle.fill").font(.system(size: 7))
+                    Text("IN YOUR BAR")
                         .font(SwizzleFont.ui(11))
                         .tracking(0.44)
                 }
-                .foregroundStyle(missing ? Color.ink2 : Color.ink)
+                .foregroundStyle(Color.ink)
                 .fixedSize()
             }
         }
         .padding(.vertical, 10)
+    }
+}
+
+/// On a bottle the bar is missing: puts it on the shopping list, or takes it back off.
+private struct ListButton: View {
+    @Environment(AppStore.self) private var store
+    let key: String
+
+    var body: some View {
+        let on = store.isOnList(key)
+        Button {
+            withAnimation(.snappy) { on ? store.removeFromList(key: key) : store.addToList(key: key) }
+        } label: {
+            Label(on ? "ON YOUR LIST" : "ADD TO LIST", systemImage: on ? "checkmark" : "plus")
+                .font(SwizzleFont.ui(11))
+                .tracking(0.44)
+                .foregroundStyle(Color.ink)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .glassEffect(.regular.interactive(), in: .capsule)
+        .fixedSize()
+        .accessibilityLabel(on ? "Remove from shopping list" : "Add to shopping list")
     }
 }
 

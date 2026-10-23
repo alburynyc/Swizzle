@@ -56,6 +56,7 @@ struct PickCard: View {
 struct RecipeCard: View {
     @Environment(AppStore.self) private var store
     let recipe: Recipe
+    @State private var confirmingDelete = false
 
     var body: some View {
         let missing = store.missingNames(recipe.ing)
@@ -99,6 +100,38 @@ struct RecipeCard: View {
         .overlay(alignment: .topTrailing) {
             BookmarkButton(recipe: recipe).padding(10)
         }
+        .contextMenu {
+            if recipe.isInvented {
+                Button("Delete drink", systemImage: "trash", role: .destructive) { confirmingDelete = true }
+            }
+        }
+        .deleteDrinkDialog(recipe, isPresented: $confirmingDelete)
+    }
+}
+
+extension View {
+    /// The "are you sure?" sheet before a bartender drink is deleted. iOS draws it in Liquid Glass.
+    func deleteDrinkDialog(_ recipe: Recipe, isPresented: Binding<Bool>, onDelete: @escaping () -> Void = {}) -> some View {
+        modifier(DeleteDrinkDialog(recipe: recipe, isPresented: isPresented, onDelete: onDelete))
+    }
+}
+
+private struct DeleteDrinkDialog: ViewModifier {
+    @Environment(AppStore.self) private var store
+    let recipe: Recipe
+    @Binding var isPresented: Bool
+    let onDelete: () -> Void
+
+    func body(content: Content) -> some View {
+        content.confirmationDialog("Delete \(recipe.name)?", isPresented: $isPresented, titleVisibility: .visible) {
+            Button("Delete", role: .destructive) {
+                onDelete()
+                withAnimation(.snappy) { store.deleteInvented(recipe) }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Are you sure you want to delete this drink? The bartender can’t make it again.")
+        }
     }
 }
 
@@ -122,7 +155,7 @@ struct RecipeRow: View {
         let bottles = recipe.ing.filter { $0.bottle != nil }.map(\.item).joined(separator: " · ")
         NavigationLink(value: recipe) {
             HStack(spacing: 14) {
-                RecipeArt(recipe: recipe, iconScale: 0.55, lineWidth: 1.4)
+                RecipeArt(recipe: recipe, iconScale: 0.55)
                     .frame(width: 72, height: 72)
                     .clipShape(.rect(cornerRadius: 14))
                 VStack(alignment: .leading, spacing: 3) {

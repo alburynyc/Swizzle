@@ -110,7 +110,7 @@ private struct OnboardingArt: View {
     let glasses: [String]
     let aspect: CGFloat
     var body: some View {
-        GlassArt(glasses: glasses, iconScale: glasses.count > 1 ? 0.16 : 0.32, lineWidth: 2)
+        GlassArt(glasses: glasses, iconScale: glasses.count > 1 ? 0.16 : 0.32)
             .aspectRatio(aspect, contentMode: .fit)
             .clipShape(.rect(cornerRadius: 20))
             .accessibilityHidden(true)
@@ -387,7 +387,7 @@ private struct PremiumStep: View {
                 .accessibilityLabel("An Old Fashioned with an orange twist")
             VStack(alignment: .leading, spacing: 14) {
                 Benefit(title: "Every recipe, at your fingertips", detail: "Explore the full cocktail collection.") {
-                    GlassIcon(.martini).stroke(Color.ink, style: StrokeStyle(lineWidth: 1.4, lineCap: .round, lineJoin: .round))
+                    GlassIcon(.martini).foregroundStyle(Color.ink)
                 }
                 Benefit(title: "A bar that keeps growing", detail: "Unlimited bottle scans and saved cocktails.") {
                     Image(systemName: "viewfinder")

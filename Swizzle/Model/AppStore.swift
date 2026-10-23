@@ -23,6 +23,14 @@ struct BarBottle: Codable, Identifiable, Hashable {
     var other = false
 }
 
+/// A bottle to buy: one taken off the shelf, or one a recipe needs.
+struct ShoppingItem: Codable, Identifiable, Hashable {
+    var id = UUID()
+    var name: String
+    /// The catalog bottle, when it's one the recipes use.
+    var key: String?
+}
+
 /// A bottle the label scan found, waiting for the person to confirm it.
 struct DetectedBottle: Identifiable, Hashable {
     let id = UUID()
@@ -45,6 +53,8 @@ final class AppStore {
     private(set) var saved: [String] = []
     /// Drinks Ask the bartender invented, newest first.
     private(set) var invented: [Recipe] = []
+    /// Bottles to buy, in the order they were added.
+    private(set) var shopping: [ShoppingItem] = []
     var plan: Plan = .yearly
     private(set) var premium = false
     private(set) var filter: HomeFilter = .all
@@ -79,6 +89,7 @@ final class AppStore {
         var invented: [Recipe]?
         var askDay: Int?
         var asksToday: Int?
+        var shopping: [ShoppingItem]?
     }
 
     init() {
@@ -94,13 +105,14 @@ final class AppStore {
             invented = (s.invented ?? []).map { Bartender.checked($0, catalog: catalog) }
             askDay = s.askDay ?? 0
             asksToday = s.asksToday ?? 0
+            shopping = s.shopping ?? []
         }
         shelfPhoto = UIImage(contentsOfFile: Self.shelfURL.path)
     }
 
     func persist() {
         let s = Saved(onboarded: onboarded, name: name, bar: bar, saved: saved, plan: plan, premium: premium, filter: filter, invented: invented,
-                      askDay: askDay, asksToday: asksToday)
+                      askDay: askDay, asksToday: asksToday, shopping: shopping)
         if let data = try? JSONEncoder().encode(s) {
             UserDefaults.standard.set(data, forKey: Self.stateKey)
         }
@@ -162,9 +174,11 @@ final class AppStore {
     func toggleSaved(_ recipe: Recipe) {
         if isSaved(recipe.id) {
             saved.removeAll { $0 == recipe.id }
+            Haptics.removed()
             show("Removed from saved")
         } else {
             saved.insert(recipe.id, at: 0)
+            Haptics.saved()
             show("Saved to For You")
         }
         persist()
@@ -232,8 +246,10 @@ final class AppStore {
         do {
             let lines = try await LabelScanner.recognizeText(in: image)
             detected = LabelScanner.bottles(in: lines, catalog: catalog)
+            Haptics.scanned()
             showScanReview = true
         } catch {
+            Haptics.failed()
             show("That photo couldn't be read. Try another one.")
         }
     }
@@ -337,12 +353,90 @@ final class AppStore {
             }
             asksToday += 1
             persist()
+            Haptics.poured()
             show("\(drinks.count) new drinks added")
         } catch let error as Bartender.Failure {
+            Haptics.failed()
             show(error.message)
         } catch {
+            Haptics.failed()
             show("The bartender couldn’t come up with anything. Try again.")
         }
+    }
+
+    /// Deletes a drink the bartender invented, and takes it out of Saved.
+    func deleteInvented(_ recipe: Recipe) {
+        guard recipe.isInvented else { return }
+        invented.removeAll { $0.id == recipe.id }
+        saved.removeAll { $0 == recipe.id }
+        persist()
+        Haptics.removed()
+        show("\(recipe.name) deleted")
+    }
+
+    // MARK: Shopping list
+
+    func isOnList(_ key: String) -> Bool { shopping.contains { $0.key == key } }
+
+    /// How many more drinks the bar could make with this bottle added.
+    func unlocks(_ key: String?) -> Int {
+        guard let key, !has(key) else { return 0 }
+        let have = haveKeys.union([key])
+        return allRecipes.filter { recipe in
+            let needs = Recipe.bottleKeys(recipe.ing)
+            return needs.contains(key) && needs.allSatisfy(have.contains)
+        }.count
+    }
+
+    /// Adds a catalog bottle a recipe needs.
+    func addToList(key: String) {
+        guard !isOnList(key), let b = catalog.bottle(key) else { return }
+        shopping.append(ShoppingItem(name: b.name, key: key))
+        persist()
+        Haptics.saved()
+        show("\(b.name) added to your shopping list")
+    }
+
+    /// Takes a bottle off the shelf and puts it on the shopping list.
+    func moveToList(_ bottle: BarBottle) {
+        bar.removeAll { $0.id == bottle.id }
+        let name = catalog.bottle(bottle.key)?.name ?? bottle.label
+        let already = shopping.contains { item in
+            bottle.key.map { item.key == $0 } ?? (item.name.lowercased() == name.lowercased())
+        }
+        if !already { shopping.append(ShoppingItem(name: name, key: bottle.key)) }
+        persist()
+        Haptics.saved()
+        show("\(name) moved to your shopping list")
+    }
+
+    func removeFromList(_ item: ShoppingItem) {
+        shopping.removeAll { $0.id == item.id }
+        persist()
+        Haptics.removed()
+    }
+
+    func removeFromList(key: String) {
+        guard let item = shopping.first(where: { $0.key == key }) else { return }
+        removeFromList(item)
+    }
+
+    /// Bought it: off the list and onto the shelf.
+    func bought(_ item: ShoppingItem) {
+        shopping.removeAll { $0.id == item.id }
+        let before = canMake.count
+        if item.key == nil || !has(item.key!) {
+            bar.append(BarBottle(label: item.name, key: item.key))
+        }
+        persist()
+        Haptics.saved()
+        let gained = canMake.count - before
+        show("\(item.name) is on your shelf" + (gained > 0 ? " · +\(gained) drinks" : ""))
+    }
+
+    /// The list as plain text, for Messages or Notes.
+    var shoppingText: String {
+        "Swizzle shopping list\n" + shopping.map { "• \($0.name)" }.joined(separator: "\n")
     }
 
     // MARK: Toast
