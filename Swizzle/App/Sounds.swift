@@ -1,6 +1,6 @@
 import AVFoundation
 
-/// The app's two sound effects, from Garrett's recordings in Resources/Sounds. They use the ambient
+/// The app's sound effects, from Garrett's recordings in Resources/Sounds. They use the ambient
 /// audio session, so they mix with music and stay quiet when the ringer switch is on silent.
 @MainActor
 enum Sounds {
@@ -9,6 +9,15 @@ enum Sounds {
 
     /// Tapping Ask the bartender.
     static func shake() { play("Shaker") }
+
+    /// The bartender's new drinks arriving.
+    static func tada() {
+        players["Shaker"]?.stop()
+        play("Tada")
+    }
+
+    /// Deleting a bartender drink.
+    static func dink() { play("Dink") }
 
     private static var players: [String: AVAudioPlayer] = [:]
     private static var sessionReady = false

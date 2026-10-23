@@ -356,6 +356,7 @@ final class AppStore {
             asksToday += 1
             persist()
             Haptics.poured()
+            Sounds.tada()
             show("\(drinks.count) new drinks added")
         } catch let error as Bartender.Failure {
             Haptics.failed()
@@ -369,6 +370,7 @@ final class AppStore {
     /// Deletes a drink the bartender invented, and takes it out of Saved.
     func deleteInvented(_ recipe: Recipe) {
         guard recipe.isInvented else { return }
+        Sounds.dink()
         invented.removeAll { $0.id == recipe.id }
         saved.removeAll { $0 == recipe.id }
         persist()
